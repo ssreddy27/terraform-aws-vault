@@ -416,8 +416,15 @@ func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
 func initializeVault(t *testing.T, vaultCluster *VaultCluster) {
 	logger.Logf(t, "Initializing the cluster")
-	output := ssh.CheckSshCommand(t, vaultCluster.Leader, "vault operator init")
-	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, output)
+
+	maxRetries := 30
+	sleepBetweenRetries := 10 * time.Second
+
+	out, _ := retry.DoWithRetryE(t, "Initializing the cluster", maxRetries, sleepBetweenRetries, func() (string, error) {
+		return ssh.CheckSshCommandE(t, vaultCluster.Leader, "vault operator init")
+	})
+
+	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, out)
 }
 
 // Parse the unseal keys from the stdout returned from the vault init command.
@@ -531,7 +538,12 @@ func unsealVaultNode(t *testing.T, host ssh.Host, unsealKeys []string) {
 	unsealCommand := strings.Join(unsealCommands, " && ")
 
 	logger.Logf(t, "Unsealing Vault on host %s", host.Hostname)
-	ssh.CheckSshCommand(t, host, unsealCommand)
+
+	maxRetries := 30
+	sleepBetweenRetries := 10 * time.Second
+	retry.DoWithRetry(t, "Unsealing Vault on host %s", maxRetries, sleepBetweenRetries, func() (string, error) {
+		return ssh.CheckSshCommandE(t, host, unsealCommand)
+	})
 }
 
 // Parse an unseal key from a single line of the stdout of the vault init command, which should be of the format:

@@ -1,23 +1,24 @@
 package test
 
 import (
-	"testing"
-	"os"
-	"time"
+	"errors"
 	"fmt"
+	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/hashicorp/vault/api"
-	"net/http"
-	"errors"
-	"github.com/gruntwork-io/terratest/modules/ssh"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/gruntwork-io/terratest/modules/terraform"
+	"testing"
+	"time"
+
 	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/logger"
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
+	"github.com/gruntwork-io/terratest/modules/ssh"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/require"
 )
 
